@@ -23,14 +23,10 @@ def port_scan(target_ip, target_port):
     if TCP in resp:
         if resp[TCP].flags == 18:  # SYN-ACK
             return "open"
-        elif resp[TCP].flags == 4:  # RST
+        elif resp[TCP].flags == 20:  # RST
             return "closed"
-    
-    if ICMP in resp:
-        if resp[ICMP].type == 3:  # Destination Unreachable
+        else:
             return "filtered"
-
-    return "filtered" 
 
 def main():
     args = parse_args()
@@ -52,3 +48,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
