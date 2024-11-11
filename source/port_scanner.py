@@ -3,6 +3,7 @@ from scapy.layers.inet import IP, TCP, ICMP
 from ipaddress import ip_address
 import argparse
 import time
+import sys
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Basic port scanner that mimics the behaviour of hping3. If no start and end port is specified then it defaults the scan from port 1-65535")
@@ -32,19 +33,22 @@ def main():
     args = parse_args()
 
     ports_to_scan = range(args.start, args.end + 1)
+    try:
+        for port in ports_to_scan:
+            if args.delay > 0:
+                time.sleep(args.delay / 1000.0)  # Convert milliseconds to seconds
 
-    for port in ports_to_scan:
-        if args.delay > 0:
-            time.sleep(args.delay / 1000.0)  # Convert milliseconds to seconds
+            scan = port_scan(args.ip, port)
 
-        scan = port_scan(args.ip, port)
-
-        if scan == "open":
-            print(f"Port {port} on {args.ip} is open")
-        elif scan == "closed":
-            print(f"Port {port} on {args.ip} is closed")
-        elif scan == "filtered":
-            print(f"Port {port} on {args.ip} is filtered")
+            if scan == "open":
+                print(f"Port {port} on {args.ip} is open")
+            elif scan == "closed":
+                print(f"Port {port} on {args.ip} is closed")
+            elif scan == "filtered":
+                print(f"Port {port} on {args.ip} is filtered")
+    except KeyboardInterrupt:
+        print("\n Scan stopped. Exiting...")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
